@@ -38,58 +38,51 @@
 </head>
 <body>
 
-    <button class="search-btn" id="start-btn">🎙️ Искать на Яндекс Музыке</button>
+    <button class="search-btn" id="start-btn">🎙️ Сказать песню</button>
     <div class="status" id="status-text">Нажмите на кнопку и говорите...</div>
 
     <script>
-// Проверяем поддержку Web Speech API в браузере
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-if (!SpeechRecognition) {
-    document.getElementById('status-text').textContent = "Ваш браузер не поддерживает голосовое распознавание.";
-    document.getElementById('start-btn').disabled = true;
-} else {
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'ru-RU'; // Устанавливаем русский язык
-    recognition.interimResults = false; // Ждем окончания фразы
-    recognition.maxAlternatives = 1;
+        if (!SpeechRecognition) {
+            document.getElementById('status-text').textContent = "Ваш браузер не поддерживает голосовое распознавание.";
+            document.getElementById('start-btn').disabled = true;
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ru-RU';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
 
-    const startBtn = document.getElementById('start-btn');
-    const statusText = document.getElementById('status-text');
+            const startBtn = document.getElementById('start-btn');
+            const statusText = document.getElementById('status-text');
 
-    // Клик по кнопке запускает запись
-    startBtn.addEventListener('click', () => {
-        recognition.start();
-        statusText.textContent = "Слушаю название песни или артиста...";
-    });
+            startBtn.addEventListener('click', () => {
+                recognition.start();
+                statusText.textContent = "Слушаю название песни...";
+            });
 
-    // Обработка успешного распознавания
-    recognition.onresult = (event) => {
-        const speechResult = event.results[0][0].transcript;
-        statusText.textContent = `Включаю: "${speechResult}"`;
-        
-        // Формируем ссылку, которая СРАЗУ запускает воспроизведение первого трека
-        const encodedQuery = encodeURIComponent(speechResult);
-        const playMusicUrl = `https://yandex.ru{encodedQuery}&play=1`;
-        
-        // Открываем и включаем музыку в новой вкладке
-        setTimeout(() => {
-            window.open(playMusicUrl, '_blank');
-            statusText.textContent = "Нажмите на кнопку и говорите...";
-        }, 1000);
-    };
+            recognition.onresult = (event) => {
+                const speechResult = event.results[0][0].transcript;
+                statusText.textContent = `Включаю: "${speechResult}"`;
+                
+                // Исправленный адрес: направляет строго на Музыку и активирует автоплеер
+                const encodedQuery = encodeURIComponent(speechResult);
+                const playMusicUrl = `https://yandex.ru{encodedQuery}&play=1`;
+                
+                setTimeout(() => {
+                    window.open(playMusicUrl, '_blank');
+                    statusText.textContent = "Нажмите на кнопку и говорите...";
+                }, 1000);
+            };
 
-    // Обработка ошибок
-    recognition.onerror = (event) => {
-        statusText.textContent = `Ошибка: ${event.error}. Попробуйте еще раз.`;
-    };
+            recognition.onerror = (event) => {
+                statusText.textContent = `Ошибка: ${event.error}. Попробуйте еще раз.`;
+            };
 
-    // Окончание записи
-    recognition.onspeechend = () => {
-        recognition.stop();
-    };
-}
-
+            recognition.onspeechend = () => {
+                recognition.stop();
+            };
+        }
     </script>
 </body>
 </html>
